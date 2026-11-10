@@ -1,0 +1,507 @@
+/* ============================================================
+   Modern heritage (default) + legacy themes: western / editorial / boho
+   Heritage = cream paper, bordeaux & deep green, bold tightly-tracked
+   headings in Bricolage Grotesque + Manrope body.
+   Scroll-typography behaviour lives in css/typography.css + js/typography.js
+   (inspired by Codrops "On Scroll Typography Animations", MIT).
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important} /* bug fix: .cd{display:flex} was overriding the hidden attr on the expired countdown */
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--f-body);background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body:not(.opened){overflow:hidden;height:100vh}
+#fx{display:none} /* enabled per theme by JS only (heritage default skips particles entirely) */
+#invite{position:relative;z-index:2}
+main img{max-width:100%}
+
+/* Mobile scroll feedback: phone browsers keep their native scrollbar hidden, so
+   a thin progress line at the top edge shows how far through the invitation the
+   guest is. Purely visual — no scroll hijacking, native scrollbar untouched. */
+.scroll-progress{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:3px;z-index:90;display:none;pointer-events:none;background:transparent}
+.scroll-progress i{display:block;width:100%;height:100%;transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--accent),var(--green));box-shadow:0 0 6px rgba(15,61,58,.35)}
+@media (max-width:1023px),(pointer:coarse){.scroll-progress{display:block}}
+button,a{font-family:inherit}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--focus,var(--gold,#a8873f));outline-offset:3px;border-radius:2px}
+.skipnote{position:absolute;left:-9999px}
+
+/* ===== THEME TOKENS ===== */
+:root,body[data-theme=heritage]{
+  --bg:#f5dabf;            /* cream paper */
+  --paper:#faecd9;         /* lighter cream, frame/card panels */
+  --ink:#0f3d3a;           /* deep green body text */
+  --accent:#6c151e;        /* bordeaux */
+  --green:#0f3d3a;         /* deep green (bands, accents) */
+  --gold:#0f3d3a;          /* spaced kicker/eyebrow text = deep green */
+  --gold-soft:#6c151e;     /* decorative linework = bordeaux */
+  --muted:#4a5f5b;         /* dark green-grey secondary text */
+  --card:#faecd9;
+  --line:#0f3d3a40;        /* translucent deep-green hairline */
+  --focus:#0f3d3a;
+  --on-accent:#f5dabf;     /* cream-on-bordeaux */
+  --rad:0px;
+  --shadow:0 30px 60px -38px rgba(15,61,58,.55);
+  --f-body:"Manrope","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+}
+body[data-theme=western]{--bg:#f4ead9;--ink:#2b1a10;--accent:#b5532f;--accent2:#8a5a2b;--card:#fbf5ea;--line:#c9a26a;
+  --focus:#8a5a2b;--on-accent:#fbf5ea;--rad:2px;
+  --fx:rgba(201,162,106,.55)|rgba(181,83,47,.35);
+  --f-body:"Jost",sans-serif;--f-display:"Playfair Display",serif;--f-script:"Great Vibes",cursive;--f-badge:"Rye",serif}
+body[data-theme=editorial]{--bg:#f1efea;--ink:#0a0a0a;--accent:#8a6b2b;--accent2:#0a0a0a;--card:#fff;--line:#0a0a0a;
+  --focus:#0a0a0a;--on-accent:#f1efea;--rad:0px;
+  --f-body:"Jost",sans-serif;--f-display:"Bodoni Moda",serif;--f-badge:"Jost",sans-serif}
+body[data-theme=boho]{--bg:#eef1e6;--ink:#2f3a2a;--accent:#5f7a51;--accent2:#c98f84;--card:#fbfaf4;--line:#b9c5a8;
+  --focus:#5f7a51;--on-accent:#fbf5ea;--rad:40px;
+  --fx:rgba(127,152,112,.45)|rgba(217,165,155,.5)|rgba(185,197,168,.6);
+  --f-body:"Jost",sans-serif;--f-display:"Cormorant Garamond",serif;--f-script:"Allura",cursive;--f-badge:"Jost",sans-serif}
+
+/* ===== NO-JS FALLBACK ===== */
+.no-js{max-width:560px;margin:18vh auto 0;padding:0 24px;text-align:center;font-family:var(--f-body);color:var(--ink);line-height:1.7}
+.no-js h1{font-family:var(--f-display);font-weight:700;color:var(--accent);font-size:2rem;margin-bottom:14px}
+.no-js a{color:var(--accent)}
+
+/* ===== SHARED BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;text-decoration:none;background:var(--accent);color:var(--on-accent);
+  padding:12px 24px;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;border:1px solid var(--accent);border-radius:var(--rad);
+  cursor:pointer;transition:transform .25s ease,background .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease}
+.btn:hover,.btn:focus-visible{transform:translateY(-2px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 16px 30px -18px rgba(15,61,58,.55)}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--gold-soft);box-shadow:none}
+.btn.ghost:hover,.btn.ghost:focus-visible{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btns.center{justify-content:center;margin-top:20px}
+/* contact buttons: the phone number itself is the highlight, not just the button */
+.contact{flex-direction:column;gap:4px;padding:10px 18px;line-height:1.15}
+.contact-label{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;opacity:.82}
+.contact-number{display:inline-block;padding:.36em .74em;border-radius:2px;background:var(--accent);color:var(--on-accent);
+  font-size:.98rem;font-weight:700;letter-spacing:.055em;font-variant-numeric:tabular-nums;
+  transition:background .25s ease,color .25s ease}
+.contact:hover .contact-number,.contact:focus-visible .contact-number{background:var(--on-accent);color:var(--accent)}
+
+/* ===== INTRO (shared) ===== */
+#intro{position:fixed;inset:0;z-index:100;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center}
+#intro button{cursor:pointer;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;padding:14px 34px}
+#intro small{letter-spacing:.4em;text-transform:uppercase;font-size:.7rem}
+#intro p{font-weight:400}
+
+/* intro is built by JS; an empty one (no-JS) must not cover the page */
+#intro:empty{display:none}
+
+/* --- Heritage: quiet medallion overlay, quick dismiss --- */
+[data-theme=heritage] #intro{background:radial-gradient(circle at 50% -10%,#fdf1de,var(--bg));flex-direction:column;transition:opacity .45s ease}
+[data-theme=heritage] #intro .intro-frame{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 24px}
+[data-theme=heritage] #intro .monogram{width:78px;height:78px;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:5px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--paper);
+  color:var(--accent);font-family:var(--f-display);font-weight:700;font-size:1.35rem;letter-spacing:.12em;padding-left:.12em}
+[data-theme=heritage] #intro .intro-kicker{margin:26px 0 10px;font-size:.72rem;letter-spacing:.44em;text-transform:uppercase;color:var(--gold);font-weight:600}
+[data-theme=heritage] #intro .intro-names{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(2.4rem,9vw,4.6rem);color:var(--accent);line-height:1.02}
+#intro .intro-names em{font-style:italic;font-weight:400}
+[data-theme=heritage] #intro .intro-names em{font-style:normal;font-weight:500;color:var(--gold);font-size:.6em;padding:0 .12em}
+[data-theme=heritage] #intro .intro-date{margin-top:12px;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+[data-theme=heritage] #intro .intro-btn{margin-top:36px;background:var(--accent);color:var(--on-accent);border:0;border-radius:var(--rad);
+  padding:14px 36px;font-weight:600;box-shadow:0 18px 34px -18px rgba(15,61,58,.65);transition:transform .25s ease,box-shadow .25s ease}
+[data-theme=heritage] #intro .intro-btn:hover{transform:translateY(-2px)}
+[data-theme=heritage] #intro.leaving{opacity:0;pointer-events:none}
+
+/* --- Western: swinging saloon doors --- */
+[data-theme=western] #intro{background:var(--bg);perspective:1400px;overflow:hidden;transition:opacity .6s ease 1.1s}
+[data-theme=western] .door{position:absolute;top:0;bottom:0;width:50%;background:#3b2415;color:#e9d3a8;display:flex;align-items:center;justify-content:center;transition:transform 1.5s cubic-bezier(.6,0,.2,1);
+  background-image:repeating-linear-gradient(90deg,transparent 0 38px,rgba(0,0,0,.25) 38px 40px),linear-gradient(90deg,#3b2415,#4a2e1b 60%,#3b2415)}
+[data-theme=western] .door i{position:absolute;inset:7% 12%;border:2px solid rgba(233,211,168,.4)}
+[data-theme=western] .door.l{left:0;transform-origin:left center}
+[data-theme=western] .door.r{right:0;transform-origin:right center}
+[data-theme=western] .intro-mid{position:relative;z-index:5;color:#f4ead9;transition:opacity .5s}
+[data-theme=western] .intro-mid small{color:#e9d3a8}
+[data-theme=western] .intro-names{font-family:var(--f-script);font-size:clamp(2.6rem,10vw,5rem);margin:10px 0 26px;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+[data-theme=western] .intro-names em{display:block;font-size:.5em;color:#d98b5f}
+[data-theme=western] #intro button{background:#b5532f;color:#fbf5ea;border:0;border-radius:2px;box-shadow:0 0 0 3px #3b2415,0 0 0 5px #e9d3a8;animation:pulse 2s infinite}
+[data-theme=western] #intro.leaving .l{transform:rotateY(-78deg)}
+[data-theme=western] #intro.leaving .r{transform:rotateY(78deg)}
+[data-theme=western] #intro.leaving .intro-mid{opacity:0}
+[data-theme=western] #intro.leaving{opacity:0}
+
+/* --- Editorial: magazine cover, wipe up --- */
+[data-theme=editorial] #intro{background:#0a0a0a;color:#f1efea;flex-direction:column;justify-content:space-between;padding:28px;transition:clip-path 1.4s cubic-bezier(.77,0,.18,1);clip-path:inset(0 0 0 0)}
+[data-theme=editorial] #intro.leaving{clip-path:inset(0 0 100% 0)}
+[data-theme=editorial] .ed-top,[data-theme=editorial] .ed-bot{width:100%;display:flex;justify-content:space-between;font-size:.7rem;letter-spacing:.35em;text-transform:uppercase}
+[data-theme=editorial] .intro-names{font-family:var(--f-display);font-size:clamp(3.4rem,17vw,9rem);line-height:.9;text-transform:uppercase;display:flex;flex-direction:column;align-items:flex-start;width:100%;letter-spacing:-.03em}
+[data-theme=editorial] .intro-names span{overflow:hidden;display:block;animation:slideUp 1.1s cubic-bezier(.2,.8,.2,1) both}
+[data-theme=editorial] .intro-names span+span{animation-delay:.2s;font-style:italic;color:var(--accent)}
+[data-theme=editorial] #intro button{background:transparent;color:#f1efea;border:1px solid #f1efea;transition:.3s}
+[data-theme=editorial] #intro button:hover{background:#f1efea;color:#0a0a0a}
+
+/* --- Boho: wax seal card --- */
+[data-theme=boho] #intro{background:radial-gradient(circle at 30% 20%,#f6e7e2,#e3ead6);transition:opacity .9s ease .8s,transform 1.6s ease}
+[data-theme=boho] .seal-card{background:#fbfaf4;padding:48px 36px 36px;width:min(86vw,380px);border-radius:200px 200px 16px 16px;box-shadow:0 30px 70px rgba(47,58,42,.18);border:1px solid #cfd8c0;animation:floaty 5s ease-in-out infinite}
+[data-theme=boho] .seal-card small{font-size:.65rem;color:var(--accent)}
+[data-theme=boho] .intro-names{font-family:var(--f-script);font-size:2.9rem;line-height:1.05;margin:14px 0 24px;color:var(--ink)}
+[data-theme=boho] .seal{width:84px;height:84px;border-radius:50%!important;padding:0!important;background:radial-gradient(circle at 35% 30%,#e0a79b,#b66f62 70%);color:#fbf5ea;border:0;
+  box-shadow:0 8px 20px rgba(182,111,98,.5),inset 0 0 0 5px rgba(255,255,255,.18);font-family:var(--f-display);font-size:1.4rem!important;letter-spacing:.05em!important;transition:transform .5s;animation:pulse 2.4s infinite}
+[data-theme=boho] .seal-card p{margin-top:16px;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:#5f7a51}
+[data-theme=boho] #intro.leaving{opacity:0;transform:scale(1.25)}
+[data-theme=boho] #intro.leaving .seal{transform:scale(1.5) rotate(25deg)}
+
+/* ===== HERO ===== */
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;
+  padding:clamp(26px,5.5svh,64px) 22px clamp(30px,6.5svh,72px)}
+.eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;line-height:1.7;max-width:52ch}
+.names{font-weight:500;font-family:var(--f-display);display:flex;flex-direction:column;align-items:center;line-height:1.06;color:var(--accent)}
+/* only the h1's own word spans may be blocked: the split glyph spans
+   (typography.js .tgx-*) must stay inline or each letter gets its own line */
+.names > span{display:block;overflow:hidden;padding:.08em .12em}
+.amp{font-style:italic;font-weight:400;font-size:clamp(1.3rem,4.5vw,2.1rem);color:var(--gold);margin:6px 0}
+.tag{font-family:var(--f-display);font-style:italic;font-size:1.3rem;margin-top:12px;color:var(--muted)}
+/* heritage: bold tightly-tracked uppercase sans names, green accents */
+[data-theme=heritage] .names{font-weight:700;text-transform:uppercase;letter-spacing:-.03em;line-height:.96}
+/* the h1 is only focused programmatically after the intro opens (announced to
+   AT); its ring would wrap the whole name stack as a stray box, so keep the
+   highlight to interactive elements instead */
+[data-theme=heritage] .names:focus{outline:none}
+[data-theme=heritage] .eyebrow{font-weight:600}
+[data-theme=heritage] .amp{font-style:normal;font-weight:500;font-size:clamp(1rem,3.6vw,1.7rem);color:var(--gold);margin:.06em 0;letter-spacing:0}
+[data-theme=heritage] .tag{font-family:var(--f-body);font-style:normal;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.34em;margin-top:22px;color:var(--ink)}
+[data-theme=heritage] .date{font-weight:600;color:var(--accent)}
+[data-theme=heritage] .date::before,[data-theme=heritage] .date::after{background:var(--line)}
+[data-theme=heritage] .place{font-weight:500}
+.date{margin-top:12px;display:flex;align-items:center;gap:14px;letter-spacing:.3em;text-transform:uppercase;font-size:.8rem;color:var(--accent)}
+.date::before,.date::after{content:"";width:48px;height:1px;background:var(--gold-soft)}
+.place{margin-top:8px;font-size:.98rem;letter-spacing:.06em;color:var(--muted)}
+.line{max-width:440px;margin:24px auto 0;line-height:1.85;font-size:.98rem}
+.scroll{position:absolute;bottom:80px;font-size:.62rem;letter-spacing:.4em;text-transform:uppercase;opacity:.55}
+.scroll::after{content:"";display:block;width:1px;height:34px;background:currentColor;margin:8px auto 0;animation:drop 2s infinite}
+/* "Scroll" cue at the foot of the hero — shown where the native scrollbar is hidden */
+.scroll-hint{display:none;margin-top:18px;align-items:center;flex-direction:column;gap:7px;
+  font-size:.6rem;letter-spacing:.36em;text-transform:uppercase;color:var(--muted);text-decoration:none;opacity:.8}
+.scroll-hint span{display:block}
+.scroll-hint .scroll-line{width:1px;height:30px;background:currentColor;animation:drop 2s infinite}
+.scroll-hint:hover,.scroll-hint:focus-visible{color:var(--accent);opacity:1}
+@media (max-width:1023px){.scroll-hint{display:inline-flex}}
+@media (max-height:640px){.scroll-hint{display:none}}
+/* couple photo: intrinsic 1600×1068 → 400:267 landscape, shown uncropped */
+.photo{width:min(78vw,560px);aspect-ratio:400/267;margin-bottom:18px;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+[data-theme=heritage] .photo{border:1px solid var(--green);padding:8px;background:var(--paper);box-shadow:var(--shadow)}
+[data-theme=heritage] .photo img{object-fit:contain}
+@media(max-width:1023px){.photo{width:min(86vw,430px)}}
+
+/* --- Heritage hero: fine double frame + arch-and-medallion ornament --- */
+[data-theme=heritage] .hero::before{content:"";position:absolute;inset:14px;border:1px solid var(--line);outline:1px solid var(--line);outline-offset:5px;pointer-events:none}
+[data-theme=heritage] .hero h1{font-size:clamp(3rem,13vw,7rem)}
+[data-theme=heritage] .names .amp{font-size:clamp(1rem,3.6vw,1.7rem)}
+.arch{width:112px;height:148px;position:relative;margin-bottom:22px;flex:none}
+.arch::before{content:"";position:absolute;inset:0;border:1px solid var(--gold-soft);border-bottom:0;border-radius:120px 120px 0 0}
+.arch::after{content:"";position:absolute;inset:7px 7px 0;border:1px solid var(--line);border-bottom:0;border-radius:112px 112px 0 0}
+.arch .monogram{position:absolute;bottom:0;left:50%;width:62px;height:62px;transform:translateX(-50%);
+  border:1px solid var(--ink);border-radius:50%;background:var(--paper);display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-weight:700;font-size:1.02rem;letter-spacing:.1em;padding-left:.1em;color:var(--accent)}
+
+/* --- Western hero --- */
+[data-theme=western] .names .n1,[data-theme=western] .names .n2{font-family:var(--f-script);font-size:clamp(4rem,15vw,7.5rem);font-weight:400;color:var(--accent2)}
+[data-theme=western] .photo{background:#fff;padding:10px 10px 38px;transform:rotate(-3deg);box-shadow:0 14px 40px rgba(43,26,16,.3);aspect-ratio:auto}
+[data-theme=western] .hero::before{content:"";position:absolute;inset:18px;border:1px solid var(--line);pointer-events:none;outline:1px solid var(--line);outline-offset:6px}
+[data-theme=western] .date::before,[data-theme=western] .date::after{background:var(--line)}
+
+/* --- Editorial hero --- */
+[data-theme=editorial] .names{align-items:flex-start;width:100%;max-width:900px;color:var(--ink)}
+[data-theme=editorial] .names .n1,[data-theme=editorial] .names .n2{font-size:clamp(3.6rem,18vw,10rem);letter-spacing:-.04em;line-height:.88}
+[data-theme=editorial] .names .n2{font-style:italic;align-self:flex-end}
+[data-theme=editorial] .amp{display:none}
+[data-theme=editorial] .hero{align-items:flex-start;text-align:left}
+[data-theme=editorial] .date{color:var(--ink)}
+[data-theme=editorial] .date::before,[data-theme=editorial] .date::after{background:var(--ink)}
+[data-theme=editorial] .names .n2{color:var(--accent)}
+[data-theme=editorial] .arch{display:none}
+[data-theme=editorial] .btn{border-radius:0;border-color:var(--accent2)}
+[data-theme=editorial] .btn.primary{background:#0a0a0a;color:#f1efea;border-color:#0a0a0a}
+[data-theme=editorial] .btn.ghost{background:transparent;color:#0a0a0a;border-color:#0a0a0a}
+[data-theme=editorial] .btn.ghost:hover{background:#0a0a0a;color:#f1efea}
+[data-theme=editorial] .photo{filter:grayscale(1) contrast(1.1);border:1px solid #0a0a0a;align-self:flex-end}
+[data-theme=editorial] .marquee{border-block:1px solid var(--ink);overflow:hidden;white-space:nowrap;padding:14px 0;font-family:var(--f-display);font-size:1.3rem;text-transform:uppercase;letter-spacing:.15em}
+[data-theme=editorial] .marquee div{display:inline-block;animation:marq 28s linear infinite}
+
+/* --- Boho hero (overflow fix: decorative blobs now clipped by the hero) --- */
+[data-theme=boho] .hero{overflow:hidden}
+[data-theme=boho] .names .n1,[data-theme=boho] .names .n2{font-family:var(--f-script);font-size:clamp(3.4rem,13vw,6rem);font-weight:400;color:var(--ink)}
+[data-theme=boho] .photo{border-radius:200px 200px 0 0;box-shadow:0 0 0 8px var(--card),0 0 0 9px var(--line)}
+[data-theme=boho] .hero::after{content:"";position:absolute;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(127,152,112,.3),transparent 70%);bottom:4%;left:-120px;animation:floaty 11s ease-in-out reverse;z-index:-1}
+
+/* ===== SECTION HEADS ===== */
+.sec-head{text-align:center;padding:64px 20px 0}
+.kicker{font-size:.68rem;letter-spacing:.5em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.sec-head h2{font-family:var(--f-display);font-weight:500;font-size:clamp(1.9rem,6vw,2.8rem);color:var(--accent)}
+/* heritage: oversized crisp green/bordeaux section headings */
+[data-theme=heritage] .sec-head h2{font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(2rem,7vw,3.4rem)}
+[data-theme=heritage] .kicker{font-weight:700}
+.orn{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
+.orn i{width:56px;height:1px;background:var(--gold-soft)}
+.orn b{width:7px;height:7px;background:var(--gold);transform:rotate(45deg)}
+[data-theme=editorial] .sec-head h2{text-transform:uppercase;letter-spacing:-.02em;color:var(--ink)}
+[data-theme=editorial] .kicker{color:var(--ink);letter-spacing:.35em}
+[data-theme=editorial] .orn i{background:var(--ink)}
+[data-theme=editorial] .orn b{background:var(--ink)}
+[data-theme=western] .kicker,[data-theme=boho] .kicker{color:var(--accent)}
+
+/* ===== COUNTDOWN ===== */
+.count{text-align:center;max-width:680px;margin:0 auto;padding:60px 14px 30px}
+.count h2{font-family:var(--f-display);font-weight:500;font-size:clamp(1.7rem,5.5vw,2.4rem);color:var(--accent);margin-top:4px}
+.cd{display:flex;justify-content:center;gap:12px;margin-top:32px}
+.cd div{width:78px;height:78px;border:1px solid var(--gold-soft);border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cd b{font-family:var(--f-display);font-weight:600;font-size:1.65rem;line-height:1;color:var(--accent)}
+.cd b.flip{animation:flip .45s ease}
+.cd small{display:block;margin-top:4px;font-size:.52rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+#cd-done{margin-top:24px;font-family:var(--f-display);font-style:italic;font-size:1.3rem;color:var(--accent)}
+@media(max-width:400px){.cd{gap:7px}.cd div{width:64px;height:64px}.cd b{font-size:1.3rem}.cd small{font-size:.42rem}}
+/* heritage: full-bleed deep-green countdown band, cream numerals */
+[data-theme=heritage] .count{background:var(--green);color:#f5dabf;width:100%;max-width:none;padding:72px 20px 56px;margin-top:56px;box-shadow:inset 0 0 0 1px #f5dabf2b}
+[data-theme=heritage] .count h2{color:#f5dabf;font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(1.7rem,5.5vw,2.6rem)}
+[data-theme=heritage] .count .kicker{color:#f5dabf;opacity:.75}
+[data-theme=heritage] .cd div{border-color:#f5dabf66;background:transparent;border-radius:0}
+[data-theme=heritage] .cd b{color:#f5dabf;font-weight:700;font-size:1.85rem}
+[data-theme=heritage] .cd small{color:#f5dabf;opacity:.75}
+[data-theme=heritage] #cd-done{font-style:normal;font-weight:700;color:#f5dabf}
+/* legacy themes keep their original countdown card look */
+[data-theme=western] .cd div,[data-theme=editorial] .cd div,[data-theme=boho] .cd div{width:auto;min-width:68px;height:auto;border-radius:var(--rad);padding:14px 6px 10px;display:block}
+[data-theme=western] .cd b,[data-theme=editorial] .cd b,[data-theme=boho] .cd b{font-size:2.1rem;font-weight:700}
+[data-theme=western] .cd small,[data-theme=editorial] .cd small,[data-theme=boho] .cd small{margin-top:6px;font-size:.58rem;letter-spacing:.3em}
+[data-theme=western] .count h2,[data-theme=boho] .count h2{font-family:var(--f-script);font-weight:400;font-size:2.2rem}
+[data-theme=editorial] .count h2{font-style:italic;font-size:1.6rem;color:var(--ink)}
+
+/* ===== EVENT CARDS ===== */
+.events{max-width:680px;margin:0 auto;padding:36px 18px 8px;display:grid;gap:28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:34px 26px 28px;position:relative;text-align:center;
+  transition:transform .4s ease,box-shadow .4s ease;box-shadow:0 20px 42px -34px rgba(15,61,58,.45)}
+.card:hover{transform:translateY(-4px)}
+.badge{display:inline-block;font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.card h3{font-family:var(--f-display);font-weight:500;font-size:clamp(1.7rem,6vw,2.3rem);color:var(--accent);margin-bottom:14px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.pills span{border:1px solid var(--line);background:var(--paper);padding:6px 15px;font-size:.82rem;border-radius:99px;color:var(--ink)}
+.venue{line-height:1.75;color:var(--muted)}
+.venue strong{color:var(--ink);font-weight:500}
+/* heritage cards: crisp paper on cream, bordeaux uppercase headings */
+[data-theme=heritage] .card{padding-top:76px;background:var(--paper);box-shadow:var(--shadow)}
+[data-theme=heritage] .card h3{font-weight:700;text-transform:uppercase;letter-spacing:-.01em;font-size:clamp(1.8rem,6.5vw,2.6rem)}
+[data-theme=heritage] .pills span{border-radius:0;background:var(--bg);font-weight:600}
+[data-theme=heritage] .badge{font-weight:700}
+/* heritage arch linework inside each card — now bordeaux */
+[data-theme=heritage] .card::before{border-color:var(--accent)}
+[data-theme=heritage] .card::before{content:"";position:absolute;top:18px;left:50%;transform:translateX(-50%);width:50px;height:64px;
+  border:1px solid var(--gold-soft);border-bottom:0;border-radius:100px 100px 0 0;opacity:.85}
+/* legacy keeps */
+[data-theme=western] .card{box-shadow:inset 0 0 0 5px var(--card),inset 0 0 0 6px var(--line)}
+[data-theme=western] .badge{font-size:.8rem;letter-spacing:.15em}
+[data-theme=western] .card::before,[data-theme=western] .card::after{content:"★";position:absolute;top:12px;color:var(--accent);font-size:.8rem}
+[data-theme=western] .card::before{left:16px}
+[data-theme=western] .card::after{right:16px}
+[data-theme=editorial] .card{border-width:0 0 1px;background:transparent;text-align:left;padding:30px 0;box-shadow:none;border-radius:0}
+[data-theme=editorial] .card:hover{transform:none}
+[data-theme=editorial] .pills,[data-theme=editorial] .btns{justify-content:flex-start}
+[data-theme=editorial] .pills span{border-radius:0;background:transparent}
+[data-theme=editorial] .card h3{text-transform:uppercase;font-size:clamp(2rem,9vw,3.4rem);letter-spacing:-.02em;color:var(--ink)}
+[data-theme=editorial] .card::before{display:none}
+[data-theme=editorial] .events{max-width:900px}
+[data-theme=boho] .card{border-radius:28px;box-shadow:0 10px 40px rgba(47,58,42,.08);padding-top:34px}
+[data-theme=boho] .card::before{display:none}
+[data-theme=boho] .btn{border-radius:99px}
+[data-theme=boho] .btn.ghost{color:var(--ink);border-color:var(--line)}
+
+/* ===== DIVIDER / INFO / FOOTER ===== */
+.divider{display:flex;align-items:center;gap:12px;max-width:360px;margin:52px auto 6px;padding:0 20px}
+.divider i{flex:1;height:1px;background:var(--gold-soft)}
+.divider b{width:9px;height:9px;background:var(--gold);transform:rotate(45deg)}
+[data-theme=heritage] .divider{margin-top:64px}
+[data-theme=heritage] .divider i{background:var(--line)}
+[data-theme=heritage] .divider b{border-radius:50%}
+[data-theme=editorial] .divider b{background:var(--ink)}
+.info{text-align:center;padding:34px 20px 30px;max-width:640px;margin:0 auto}
+footer{text-align:center;padding:46px 20px 110px}
+footer p{font-family:var(--f-display);font-style:italic;font-size:1.25rem;color:var(--muted)}
+footer .sig{font-size:2.3rem;color:var(--accent);margin-top:12px}
+[data-theme=heritage] footer{padding-bottom:130px}
+[data-theme=heritage] footer p:first-child{font-family:var(--f-body);font-style:normal;font-weight:600;font-size:1rem;letter-spacing:.08em;color:var(--muted)}
+[data-theme=heritage] footer .sig{font-family:var(--f-display);font-style:normal;font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(1.9rem,6vw,3rem);color:var(--accent);margin-top:14px}
+[data-theme=western] footer .sig,[data-theme=boho] footer .sig{font-family:var(--f-script);font-size:3rem}
+[data-theme=editorial] footer .sig{font-family:var(--f-display);font-style:normal;text-transform:uppercase;font-size:1.4rem;letter-spacing:.3em;color:var(--ink)}
+
+/* ===== SCROLL REVEAL ===== */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s ease var(--d,0ms),transform .8s cubic-bezier(.2,.8,.2,1) var(--d,0ms)}
+.rv.in{opacity:1;transform:none}
+body.opened .names > span{animation:slideUp 1.1s cubic-bezier(.2,.8,.2,1) both}
+body.opened .names .n2{animation-delay:.25s}
+
+/* ===== KEYFRAMES ===== */
+@keyframes slideUp{from{transform:translateY(110%)}to{transform:none}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes flip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none;opacity:1}}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* ===== COMPACT SINGLE-SCREEN HERO (heritage theme) =====
+   Desktop ≥1024px: two-column hero (photo | names/labels) so photo, names,
+   date, venue and the schedule link all fit inside 100svh (1440×900 down to
+   1366×768). Below that: compact stacked — landscape photo on top, the names
+   on one line, tightened labels. Nothing is ever clipped: the hero keeps
+   min-height:100svh and may simply grow on very small/zoomed viewports. */
+@media (max-width:1023px){
+  [data-theme=heritage] .names{flex-direction:row;flex-wrap:wrap;justify-content:center;column-gap:.16em}
+  [data-theme=heritage] .names .amp{font-size:.58em;margin:.05em .04em}
+  [data-theme=heritage] .hero h1{font-size:clamp(1.7rem,7.4vw,2.7rem)}
+  [data-theme=heritage] .tag{font-size:.72rem;letter-spacing:.24em;margin-top:10px}
+  [data-theme=heritage] .date{font-size:.72rem;letter-spacing:.22em;margin-top:9px;gap:10px}
+  [data-theme=heritage] .date::before,[data-theme=heritage] .date::after{width:26px}
+  [data-theme=heritage] .place{font-size:.9rem}
+}
+@media (max-height:640px) and (max-width:1023px){
+  [data-theme=heritage] .hero{padding:18px 20px 24px}
+  [data-theme=heritage] .hero h1{font-size:clamp(1.5rem,6.4vw,2.2rem)}
+  [data-theme=heritage] .tag{margin-top:8px}
+  [data-theme=heritage] .date{margin-top:7px}
+  .photo{margin-bottom:12px}
+}
+/* very short landscape (phones in hand): shrink the photo so the names stay
+   fully visible; the hero may still grow — nothing is clipped */
+@media (max-height:470px){
+  .photo{width:min(70vh,76vw)}
+  [data-theme=heritage] .hero{padding-top:14px}
+}
+@media (min-width:1024px){
+  [data-theme=heritage] .hero{display:grid;
+    grid-template-columns:minmax(320px,44%) minmax(0,1fr);
+    grid-template-areas:"photo eyebrow" "photo names" "photo tag" "photo date" "photo place";
+    align-content:center;align-items:center;justify-content:center;text-align:left;
+    column-gap:clamp(28px,4.5vw,64px);row-gap:clamp(6px,1.4svh,14px);
+    padding:clamp(40px,7svh,78px) clamp(26px,4vw,56px)}
+  [data-theme=heritage] .hero .arch{grid-area:photo;margin-bottom:0;justify-self:center}
+  [data-theme=heritage] .hero .photo{grid-area:photo;width:100%;max-width:620px;margin-bottom:0}
+  [data-theme=heritage] .hero .eyebrow{grid-area:eyebrow;margin-bottom:0}
+  [data-theme=heritage] .hero .names{grid-area:names;align-items:flex-start}
+  [data-theme=heritage] .hero h1{font-size:clamp(2.9rem,6.6vw,5.1rem)}
+  [data-theme=heritage] .hero .tag{grid-area:tag;margin-top:0}
+  [data-theme=heritage] .hero .date{grid-area:date;margin-top:0}
+  [data-theme=heritage] .hero .place{grid-area:place;margin-top:0}
+}
+
+/* ===== MOTION PREFERENCES (reveal fallback: content always readable) ===== */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  [data-theme=editorial] .intro-names span{animation:none}
+  .scroll::after{animation:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important}
+}
+
+/* ============================================================
+   ADDITIONS — Kannada blessing, mandala ornaments, phone icon,
+   larger celebration-card text
+   ============================================================ */
+:root{--mandala:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cg%20fill='%23000'%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%280%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%2845%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%2890%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%28135%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%28180%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%28225%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%28270%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='5'%20rx='2.1'%20ry='4'%20transform='rotate%28315%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%2822%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%2867%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28112%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28157%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28202%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28247%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28292%2012%2012%29'/%3E%3Cellipse%20cx='12'%20cy='7.4'%20rx='1'%20ry='1.9'%20transform='rotate%28337%2012%2012%29'/%3E%3Ccircle%20cx='12'%20cy='12'%20r='2.3'/%3E%3C/g%3E%3C/svg%3E")}
+.kn{font-family:"Noto Serif Kannada","Nirmala UI","Tunga","Noto Sans Kannada","Kedage",serif;font-weight:700;letter-spacing:0;text-transform:none}
+
+/* mandala replaces the small diamond in every ornament line (heritage theme) */
+[data-theme=heritage] .orn b,[data-theme=heritage] .divider b,.mandala{
+  width:24px;height:24px;border-radius:0;transform:none;background:var(--accent);
+  -webkit-mask:var(--mandala) center/contain no-repeat;mask:var(--mandala) center/contain no-repeat}
+[data-theme=heritage] .divider b{width:30px;height:30px}
+.mandala{display:inline-block;flex:none}
+
+/* intro: blessing above the monogram */
+[data-theme=heritage] #intro .intro-kn{font-size:clamp(1.7rem,6.4vw,2.4rem);line-height:1.5;color:var(--accent);margin:0 0 20px}
+[data-theme=heritage] #intro .intro-kn::after{content:"";display:block;width:22px;height:22px;margin:6px auto 0;background:var(--accent);
+  -webkit-mask:var(--mandala) center/contain no-repeat;mask:var(--mandala) center/contain no-repeat}
+
+/* hero: blessing line above the invitation text */
+.blessing{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;color:var(--accent)}
+.blessing .kn{font-size:clamp(1.55rem,5.6vw,2.2rem);line-height:1.5}
+.blessing .mandala{width:22px;height:22px}
+.blessing::before{content:"";width:22px;height:22px;background:var(--accent);
+  -webkit-mask:var(--mandala) center/contain no-repeat;mask:var(--mandala) center/contain no-repeat}
+@media (max-height:640px) and (max-width:1023px){.blessing{margin-bottom:8px}}
+@media (min-width:1024px){
+  [data-theme=heritage] .hero{grid-template-areas:"photo blessing" "photo eyebrow" "photo names" "photo tag" "photo date" "photo place"}
+  [data-theme=heritage] .hero .blessing{grid-area:blessing;justify-content:flex-start;margin-bottom:0}
+  .blessing::before{display:none}
+}
+
+/* phone icon inside the contact number pill */
+.contact-number{display:inline-flex;align-items:center;gap:.55em}
+.contact-number .ph{flex:none;width:1em;height:1em}
+
+/* celebration cards: bigger, easier-to-read text */
+.events{max-width:720px}
+.badge{font-size:.8rem;letter-spacing:.3em}
+.pills span{font-size:1rem;padding:7px 16px}
+.venue{font-size:1.08rem}
+.card .btn{font-size:.8rem;padding:13px 28px;margin-top:4px}
+[data-theme=heritage] .card{padding-top:94px}   /* keeps the arch clear of the larger badge text */
+
+/* ============================================================
+   LANGUAGE SWITCH (js/i18n.js) — one pill, top-right, always
+   available (above the intro, below the booklet overlay). On
+   phones the booklet overlay gets its own copy in the bar, so
+   this one steps aside while the book is open.
+   ============================================================ */
+.lang-toggle{position:fixed;z-index:150;
+  top:calc(20px + env(safe-area-inset-top,0px));
+  right:calc(20px + env(safe-area-inset-right,0px));
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:56px;min-height:44px;padding:7px 14px;
+  font-family:"Noto Sans Kannada",var(--f-body);
+  font-size:.78rem;font-weight:700;line-height:1;letter-spacing:.02em;
+  color:var(--accent);background:var(--bg);border:1px solid var(--line);border-radius:999px;
+  box-shadow:0 10px 26px -18px rgba(15,61,58,.55);cursor:pointer;
+  transition:background .25s ease,color .25s ease,border-color .25s ease,transform .25s ease,opacity .2s ease}
+.lang-toggle:hover,.lang-toggle:focus-visible{background:var(--accent);color:var(--on-accent);border-color:var(--accent);transform:translateY(-1px)}
+body.bk-open .lang-toggle{opacity:0;visibility:hidden;pointer-events:none}
+@media (max-width:420px){.lang-toggle{top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px))}}
+
+/* ============================================================
+   KANNADA TYPOGRAPHY — Noto Sans Kannada for running text,
+   Noto Serif Kannada for display lines. Tracking is removed
+   (letter-spacing breaks matras) and line-height opened up,
+   because Kannada glyphs are taller than Latin ones.
+   ============================================================ */
+html[lang=kn] body{font-family:"Noto Sans Kannada",var(--f-body);line-height:1.65}
+html[lang=kn] .names,
+html[lang=kn] .sec-head h2,
+html[lang=kn] .card h3,
+html[lang=kn] .count h2,
+html[lang=kn] footer .sig,
+html[lang=kn] #intro .intro-names,
+html[lang=kn] .tag{font-family:"Noto Serif Kannada",var(--f-display);font-style:normal}
+html[lang=kn] .names,
+html[lang=kn] .sec-head h2,
+html[lang=kn] .card h3,
+html[lang=kn] .count h2,
+html[lang=kn] footer .sig,
+html[lang=kn] .tag,
+html[lang=kn] .kicker,
+html[lang=kn] .badge,
+html[lang=kn] .date,
+html[lang=kn] .place,
+html[lang=kn] .eyebrow,
+html[lang=kn] #intro .intro-kicker,
+html[lang=kn] #intro .intro-date,
+html[lang=kn] .cd small,
+html[lang=kn] .scroll-hint,
+html[lang=kn] .contact-label,
+html[lang=kn] footer p{text-transform:none!important;letter-spacing:0!important}
+html[lang=kn] #intro button{font-size:.92rem;line-height:1.5;letter-spacing:0;text-transform:none;padding:14px 28px}
+html[lang=kn] #intro small{letter-spacing:0;text-transform:none}
+html[lang=kn] .names{line-height:1.2}
+html[lang=kn] .names>span{overflow:visible;padding-block:.18em}
+html[lang=kn] .hero h1{font-size:clamp(2rem,8vw,4.8rem)!important}
+html[lang=kn] #intro .intro-names{font-size:clamp(1.9rem,7.4vw,3.6rem);line-height:1.3}
+html[lang=kn] .tag{font-size:.9rem;line-height:1.7}
+html[lang=kn] .eyebrow{font-size:.82rem;line-height:1.8}
+html[lang=kn] .date{font-size:.88rem;flex-wrap:wrap;justify-content:center;row-gap:4px}
+html[lang=kn] .place{font-size:.95rem;line-height:1.6}
+html[lang=kn] .sec-head h2{line-height:1.32}
+html[lang=kn] .card h3{line-height:1.3}
+html[lang=kn] .btn{letter-spacing:.02em;line-height:1.25}
+html[lang=kn] footer .sig{line-height:1.4}

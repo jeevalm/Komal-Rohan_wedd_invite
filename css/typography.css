@@ -1,0 +1,61 @@
+/* ============================================================
+   js/typography.js — scroll typography (default design only)
+
+   Two effects, adapted natively (no libraries) from Codrops
+   "Some More on Scroll Typography Animations" (Feb 2023) and the
+   MIT-licensed companion repo codrops/OnScrollTypographyAnimations:
+
+   1. "fold"  — one-shot per-character reveal inspired by effects
+      19/20: chars flip in from rotateX(-/+90deg) via opacity to 0,
+      staggered, once, when the heading first enters the viewport.
+      Applied with double-safety: the heading keeps an aria-label
+      before/while its characters are hidden decorative spans.
+
+   2. "words" — scroll-linked progressive per-word opacity reveal
+      inspired by effect 16: each word fades 0.12 → 1 as the reader
+      scrolls through the paragraph. Recomputed in a single rAF
+      callback that is only scheduled from scroll/resize events —
+      no continuous loop, no scroll hijack, no pinning.
+
+   Progressive enhancement: nothing is hidden until js/typography.js
+   actually splits the element (data-tgx is only set by JS). If it
+   fails to load or reduced motion is preferred, every heading and
+   paragraph stays fully visible, plain text.
+   ============================================================ */
+
+/* ---------- effect 1: one-shot character fold ---------- */
+[data-tgx="fold"] .tgx-fold-word{display:inline-block;white-space:nowrap}
+[data-tgx="fold"] .tgx-ch{
+  display:inline-block;
+  transform-origin:50% 100%;
+  transform:perspective(600px) rotateX(90deg);
+  opacity:0;
+  transition:transform .55s cubic-bezier(.2,.8,.2,1) var(--d,0ms),
+             opacity .45s ease var(--d,0ms);
+  will-change:transform,opacity;
+}
+[data-tgx="fold"] .tgx-ch.tgx-dn{transform:perspective(600px) rotateX(-90deg)}
+[data-tgx="fold"].tgx-play .tgx-ch{transform:rotateX(0);opacity:1}
+
+/* the hero names also had a per-span slideUp; when the character fold
+   owns the reveal, retire the slideUp to avoid a double animation */
+body.opened .names span[data-tgx]{animation:none!important}
+
+/* ---------- effect 2: scroll-linked word reveal ---------- */
+/* Once js/typography.js has initialised an element (data-tgx="words") its
+   words start dimmed; plain text is untouched when the module never runs. */
+[data-tgx="words"] .tgx-w{
+  display:inline-block;
+  opacity:calc(var(--wp,0.12));
+  will-change:opacity;
+}
+
+/* ---------- motion preferences: never hide text for anyone ---------- */
+@media (prefers-reduced-motion:reduce){
+  [data-tgx="fold"] .tgx-ch,
+  [data-tgx="fold"] .tgx-ch.tgx-dn{transform:none;opacity:1;transition:none}
+  [data-tgx="words"] .tgx-w{opacity:1}
+}
+
+/* heritage focus on the bordeaux booklet band needs a light ring */
+[data-theme=heritage] .booklet-sec :focus-visible{outline-color:#f5dabf}

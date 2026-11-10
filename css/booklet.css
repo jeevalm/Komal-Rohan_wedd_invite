@@ -1,0 +1,117 @@
+/* ============================================================
+   LeafThrough 3D booklet section (js/booklet.js builds the markup).
+   On the default design the section sits on a full-bleed bordeaux
+   band (cream type) — part of the alternating section rhythm of the
+   redesign. Other themes fall back to :root values.
+   Never locks page scroll: everything stays inside the section.
+   ============================================================ */
+
+.booklet-sec{text-align:center;max-width:none;margin:0 auto;padding:16px 16px 46px}
+.booklet-sec .sec-head{margin-bottom:0}
+
+/* heritage: full-width bordeaux band, cream type */
+[data-theme=heritage] .booklet-sec{background:var(--accent,#6c151e);color:#f5dabf;padding:64px 20px 60px;margin-top:0;box-shadow:inset 0 0 0 1px #f5dabf2b}
+[data-theme=heritage] .booklet-sec .kicker{color:#f5dabf;opacity:.75}
+[data-theme=heritage] .booklet-sec .sec-head h2{color:#f5dabf}
+[data-theme=heritage] .booklet-sec .orn i{background:#f5dabf;opacity:.5}
+[data-theme=heritage] .booklet-sec .orn b{background:#f5dabf}
+[data-theme=heritage] .booklet-sec .bk-open{background:transparent;color:#f5dabf;border:1px solid #f5dabf;box-shadow:none}
+[data-theme=heritage] .booklet-sec .bk-open:hover,[data-theme=heritage] .booklet-sec .bk-open:focus-visible{background:#f5dabf;color:#6c151e;border-color:#f5dabf;transform:none}
+[data-theme=heritage] .booklet-sec .bk-status{color:#f5dabf}
+[data-theme=heritage] .booklet-sec .bk-hint{color:#f5dabf;opacity:.75}
+
+.bk-open{margin-top:20px;min-height:44px}
+
+/* Stage: the container LeafThrough renders into (it fits itself inside).
+   Portrait / narrow screens get a fixed page-ratio box -> single layout;
+   desktop (the library's own spread media query) gets a fixed-height box
+   and switches to the two-page spread by itself. The magazine bleeds outside
+   the stage (its turning pages, as it would off a table) — its spill stops at
+   the document edges and never adds a scrollbar */
+.bk-stage{position:relative;width:min(92vw,560px);aspect-ratio:1/1.42;margin:28px auto 0;
+  background:var(--card,#fffdf7);border:1px solid var(--line,#e5d9c2);border-radius:6px;
+  box-shadow:0 30px 60px -38px rgba(69,38,44,.5);
+  transition:background .3s ease}
+.bk-stage[data-leafthrough]{border-color:transparent}                            /* the magazine draws its own frame once mounted */
+
+@media (min-width:768px){
+  .bk-stage{width:min(88vw,880px);aspect-ratio:auto;height:min(68vh,600px)}
+}
+@media (min-width:768px) and (max-height:560px){                                 /* short landscape windows */
+  .bk-stage{height:min(82vh,560px)}
+}
+
+/* Controls: every touch target is at least 44px */
+.bk-bar{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px}
+.bk-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 16px;font-family:inherit;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent,#6e1f2c);background:transparent;border:1px solid var(--gold-soft,#c2a45e);
+  border-radius:var(--rad,2px);cursor:pointer;
+  transition:background .25s ease,color .25s ease,border-color .25s ease}
+.bk-btn:hover,.bk-btn:focus-visible{background:var(--accent,#6e1f2c);color:var(--on-accent,#fdf6ea);border-color:var(--accent,#6e1f2c)}
+.bk-btn[disabled]{opacity:.45;cursor:default}
+.bk-btn[disabled]:hover{background:transparent;color:var(--accent,#6e1f2c);border-color:var(--gold-soft,#c2a45e)}
+[data-theme=heritage] .booklet-sec .bk-btn{color:#f5dabf;border-color:#f5dabf80}
+[data-theme=heritage] .booklet-sec .bk-btn:not([disabled]):hover,
+[data-theme=heritage] .booklet-sec .bk-btn:focus-visible{background:#f5dabf;color:#6c151e;border-color:#f5dabf}
+[data-theme=heritage] .booklet-sec .bk-count{color:#f5dabf}
+.bk-count{min-width:13ch;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted,#79685a);font-variant-numeric:tabular-nums;text-align:center}
+/* language switch inside the bar (phones keep the booklet modal focus-trapped) */
+.bk-lang{min-width:52px;padding-inline:12px;letter-spacing:.02em;text-transform:none;
+  font-family:"Noto Sans Kannada",var(--f-body,"Manrope"),sans-serif}
+html[lang=kn] .bk-count,html[lang=kn] .bk-hint{letter-spacing:0;text-transform:none}
+html[lang=kn] .bk-count{min-width:15ch}
+html[lang=kn] .bk-btn{letter-spacing:.02em;text-transform:none}
+
+.bk-hint{margin-top:14px;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted,#79685a);opacity:.85}
+.bk-status{margin:16px auto 0;max-width:52ch;color:var(--accent,#6e1f2c);font-size:.9rem;line-height:1.7}
+.bk-status .bk-retry{margin-top:12px;min-height:44px}
+
+/* Readable fallback if the 3D booklet can't run at all */
+.bk-fallback{margin:24px auto 0;max-width:560px}
+.bk-fallback img{width:100%;border:1px solid var(--gold-soft,#c2a45e);padding:8px;background:var(--paper,#fdfaf2)}
+.bk-fallback figcaption{margin-top:12px;font-size:.85rem;color:var(--muted,#79685a);line-height:1.7}
+[data-theme=heritage] .bk-fallback figcaption{color:#f5dabf}
+[data-theme=heritage] .bk-fallback{color:#f5dabf}
+
+@media (prefers-reduced-motion:reduce){
+  .bk-stage{transition:none}
+}
+
+/* ============================================================
+   MOBILE FULL-VIEWPORT OVERLAY
+   On phones the stage/bar/status/hint elements are MOVED into this
+   fixed overlay (a direct body child, so no ancestor transform can
+   turn position:fixed into a containing block). 100dvh + safe-area
+   padding keeps it under notches; portrait and landscape include.
+   Active only while js/booklet.js keeps it on — desktop never gets it.
+   ============================================================ */
+html.bk-lock,body.bk-lock{overflow:hidden}   /* page scroll lock while the overlay is open */
+.bk-overlay{position:fixed;top:0;left:0;right:0;z-index:220;display:flex;flex-direction:column;
+  width:100%;height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px))
+          calc(10px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px));
+  background:var(--accent,#6c151e);color:#f5dabf}
+.bk-overlay[hidden]{display:none}
+/* the stage fills all the leftover space; the magazine letterboxes its pages inside */
+.bk-overlay .bk-stage{position:relative;flex:1 1 auto;min-height:0;width:100%;height:auto;aspect-ratio:auto;margin:0;
+  background:transparent;border:none;border-radius:0;box-shadow:none;transition:none}
+/* controls on the bordeaux band: cream on bordeaux (≥ 7:1), hover flips to cream fill */
+.bk-overlay .bk-count{color:#f5dabf}
+.bk-overlay .bk-btn{color:#f5dabf;border-color:#f5dabf9e}
+.bk-overlay .bk-btn[disabled]{color:#f5dabf;border-color:#f5dabf9e;opacity:.45;cursor:default}
+.bk-overlay .bk-btn:not([disabled]):hover,.bk-overlay .bk-btn:focus-visible{background:#f5dabf;color:#6c151e;border-color:#f5dabf}
+.bk-overlay .bk-hint{color:#f5dabf;opacity:.75;margin-top:10px}
+.bk-overlay .bk-status{color:#f5dabf;margin:8px auto 0}
+/* phones: the language switch lives in the overlay's top-right corner, so the
+   control bar stays on a single row at 360–390 px wide */
+.bk-overlay .bk-lang{position:absolute;z-index:2;margin:0;
+  top:calc(12px + env(safe-area-inset-top,0px));
+  right:calc(12px + env(safe-area-inset-right,0px))}
+@supports (height:100dvh){
+  .bk-overlay{height:100dvh}
+}
+
+/* once the booklet is open, the pages sit straight on the bordeaux band instead of inside a cream box */
+[data-theme=heritage] .bk-stage.is-open{background:transparent;border-color:transparent;box-shadow:none}

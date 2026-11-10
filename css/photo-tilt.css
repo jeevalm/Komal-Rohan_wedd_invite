@@ -1,0 +1,35 @@
+/* ============================================================================
+   css/photo-tilt.css — decorative overlay canvas for the couple photo's
+   scroll tilt (see js/photo-tilt.js). Everything here is pure enhancement:
+   with no JavaScript, no WebGL, reduced motion, Data Saver or on any error the
+   plain <img> is shown exactly as the base stylesheet renders it.
+
+   .photo only gains a positioning context; its frame (border, padding,
+   background, radius) is never covered — the overlay canvas is placed by the
+   script precisely over the displayed photo rectangle inside that frame.
+   ============================================================================ */
+
+.photo {
+  position: relative;
+}
+
+.photo-tilt-canvas {
+  position: absolute;
+  display: block;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 1;   /* above the img inside .photo; never above page-level layers */
+}
+
+/* Only while the script reports the canvas has rendered the photo identically
+   does the img step aside — visually only (visibility, not display), so the
+   layout, alt text and fallback all stay intact. */
+.photo[data-photo-3d="ready"] > img {
+  visibility: hidden;
+}
