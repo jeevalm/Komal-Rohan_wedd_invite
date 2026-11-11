@@ -22,7 +22,7 @@ window.WEDDING = {
   invitationLine: "With joy and blessings, the Mahendrakar and Ummannanavar families invite you to the wedding of",
   // invitationLine: "The Mahendrakar's family joyfully invite you",
   heroPlace: "Jagajyothi Cultural Centre, Masuru, Karnataka",
-  couplePhoto: "couplePhoto.jpeg",           // photo file at the project root (1600×1068, landscape)
+  couplePhoto: "couplePhoto.webp",           // photo file at the project root (1600×1068, landscape)
   bookletPhotos: [                           // the 3D booklet is cover + one page per photo below
     "bookletPhoto-1.jpeg",
     "bookletPhoto-2.jpeg",

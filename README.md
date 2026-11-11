@@ -28,11 +28,11 @@ lives in a single config file; the design reads it and renders everything.
 - **Dates:** Engagement — 3 December 2026, 7:00 pm · Marriage — 4 December 2026, 10:30 am · Reception — 4 December 2026, 7:30 pm (all `Asia/Kolkata`)
 - **Venue (all events):** Jagajyothi Cultural Centre, Masuru, Karnataka 581210
 - **Directions:** <https://maps.app.goo.gl/uBuS3KwDwVHrGcgN7>
-- **Photo:** `couplePhoto.jpeg` at the project root (1600×1068 landscape, shown uncropped at
+- **Photo:** `couplePhoto.webp` at the project root (1600×1068 landscape, shown uncropped at
   400:267 in the hero). Two pre-generated WebP variants — `couplePhoto-640.webp` (24 KB) and
   `couplePhoto-960.webp` (42 KB) — are served via `srcset`/`sizes` (`fetchpriority="high"`),
   same photo, same crop, just smaller files for phones; the original JPEG remains the fallback
-  and the 1600w source. The variants are only wired to the built-in `couplePhoto.jpeg`; if you
+  and the 1600w source. The variants are only wired to the built-in `couplePhoto.webp`; if you
   point `config.js` at your own image, the `srcset` is skipped (rename/re-generate your own
   variants if you want them).
 - **Extra booklet photos:** `bookletPhoto-1.jpeg` … `bookletPhoto-5.jpeg` are the five

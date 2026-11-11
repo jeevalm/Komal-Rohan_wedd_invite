@@ -138,11 +138,11 @@
   /* ---------- invitation body ---------- */
   const invite = $("#invite");
   /* Responsive hero photo: smaller pre-generated WebP variants are only used for the
-     known root photo (couplePhoto.jpeg, 1600×1068) — never for a custom-config image,
-     whose file name/location we can't predict. The original JPEG stays as the fallback
+     known root photo (couplePhoto.webp, 1600×1068) — never for a custom-config image,
+     whose file name/location we can't predict. The original WebP stays as the fallback
      src and as the 1600w source. Appearance is unchanged: same photo, uncropped. */
   const photoPath = str(C.couplePhoto).trim();
-  const HERO_SRCSET = photoPath === "couplePhoto.jpeg"
+  const HERO_SRCSET = photoPath === "couplePhoto.webp"
     ? `couplePhoto-640.webp 640w, couplePhoto-960.webp 960w, ${esc(photoPath)} 1600w`
     : "";
   /* mirrors .photo's CSS width: stacked ≤1023px vs the two-column desktop hero */
