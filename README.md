@@ -26,7 +26,7 @@ lives in a single config file; the design reads it and renders everything.
   `aria-hidden` and the original text is preserved via `aria-label`; `prefers-reduced-motion`
   disables everything and keeps all text fully visible).
 - **Dates:** Engagement — 3 December 2026, 7:00 pm · Marriage — 4 December 2026, 10:30 am · Reception — 4 December 2026, 7:30 pm (all `Asia/Kolkata`)
-- **Venue (all events):** Jagajyothi Cultural Centre, Masur, Karnataka 581210
+- **Venue (all events):** Jagajyothi Cultural Centre, Masuru, Karnataka 581210
 - **Directions:** <https://maps.app.goo.gl/uBuS3KwDwVHrGcgN7>
 - **Photo:** `couplePhoto.jpeg` at the project root (1600×1068 landscape, shown uncropped at
   400:267 in the hero). Two pre-generated WebP variants — `couplePhoto-640.webp` (24 KB) and
@@ -189,8 +189,9 @@ none is invented here.
 
 ## 6. Latest changes
 
-- **English / ಕನ್ನಡ toggle** (`js/i18n.js`): one pill, remembered per device, all copy and
-  dates switch; `?lang=kn` deep-links into Kannada. See section 2b.
+- **English / ಕನ್ನಡ toggle** (`js/i18n.js`): one pill, all copy and dates switch;
+  the configured language is used on each page load and `?lang=kn` deep-links into Kannada.
+  See section 2b.
 - **Booklet is now a photo album**: cover + one page per `bookletPhotos` entry (6 pages by
   default) — no schedule, venue, family or phone page. Switching language while it is open
   rebuilds the pages; photos are contained on whole pixels and never over-upscaled.
@@ -198,8 +199,8 @@ none is invented here.
   3D booklet → schedule.
 - **Kannada typography**: Noto Sans/Serif Kannada, word-level (not glyph-level) scroll
   effects and whole-string canvas drawing so conjuncts and matras stay intact.
-- **Kannada blessing** "ಶುಭ ವಿವಾಹ" on the intro screen, the hero and the booklet cover. Edit or clear it with
-  `blessing` in `config.js`; the Noto Serif Kannada font is loaded in `index.html`.
+- **Localized blessing** on the intro screen, the hero and the booklet cover: English uses
+  `blessing` and Kannada uses `kn.blessing` in `config.js`.
 - **Phone icons** on the contact buttons.
 - **Mandala ornament** replaces the diamond in all dividers (CSS mask in `css/style.css`; canvas flower in `js/booklet.js`).
 - **Booklet:** cover/spread are centred (`centerBook()` in `js/booklet.js`), pages sit directly on the maroon band, the

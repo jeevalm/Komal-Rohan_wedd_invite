@@ -32,7 +32,9 @@
   const groomEn = str(C.groom).trim() || "Groom";
   const brideEn = str(C.bride).trim() || "Bride";
   const tzName = str(C.timeZone).trim() || "Asia/Kolkata";
-  const blessing = str(C.blessing).trim();           /* Kannada blessing line (optional) */
+  const coupleNames = () => `${t("groom")} ${t("conjunction")} ${t("bride")}`;
+  const blessing = () => str(t("blessing")).trim();
+  const blessingLang = () => I18N && I18N.lang === "kn" ? "kn" : "en";
 
   /* events/contacts keep their original config index so the per-language
      `kn.events` / `kn.contacts` arrays always line up, even if an entry is
@@ -58,7 +60,7 @@
   };
 
   /* ---------- title, meta description, monogram favicon ---------- */
-  document.title = `${t("groom")} & ${t("bride")} — ${t("ui.pageTitle")}`;
+  document.title = `${coupleNames()} — ${t("ui.pageTitle")}`;
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute("content",
     `Wedding invitation for ${groomEn} & ${brideEn}. Schedule, venues and directions, in English and Kannada.`);
@@ -102,7 +104,9 @@
     const introTop = esc(t("intro.top"));
     const introTap = esc(t("intro.tap"));
     const introBottom = esc(t("intro.bottom"));
-    const introNames = `${groom} <em>&amp;</em> ${bride}`;
+    const blessingText = esc(blessing());
+    const blessingClass = blessingLang() === "kn" ? " kn" : "";
+    const introNames = `${groom} <em data-i18n="conjunction">${esc(t("conjunction"))}</em> ${bride}`;
     const introDate = mainISO ? `<p class="intro-date" data-i18n-date="${esc(mainISO)}" data-i18n-date-opts="${esc(JSON.stringify(DATE_SHORT))}">${esc(fmtDate(mainISO, DATE_SHORT))}</p>` : "";
 
     if (theme === "western") {
@@ -110,18 +114,19 @@
         <div class="intro-mid"><small>${introTop}</small><p class="intro-names intro-names-l">${introNames}</p><button type="button" class="intro-open">${introTap || esc("Open invitation")}</button></div>`;
     } else if (theme === "editorial") {
       intro.innerHTML = `<div class="ed-top"><span>${introTop}</span><span>${esc(fmtDate(mainISO, DATE_SHORT))}</span></div>
-        <p class="intro-names"><span>${groom}</span><span>&amp; ${bride}</span></p><button type="button" class="intro-open">${introTap || esc("Enter")} →</button><div class="ed-bot">${introBottom}</div>`;
+        <p class="intro-names"><span>${groom}</span><span><em data-i18n="conjunction">${esc(t("conjunction"))}</em> ${bride}</span></p><button type="button" class="intro-open">${introTap || esc("Enter")} →</button><div class="ed-bot">${introBottom}</div>`;
     } else if (theme === "boho") {
-      intro.innerHTML = `<div class="seal-card"><small>${introTop}</small><p class="intro-names intro-names-stack">${groom}<br>&amp;<br>${bride}</p>
+      intro.innerHTML = `<div class="seal-card"><small>${introTop}</small><p class="intro-names intro-names-stack">${groom}<br><span data-i18n="conjunction">${esc(t("conjunction"))}</span><br>${bride}</p>
         <button type="button" class="seal" aria-label="${introTap || esc("Open invitation")}"><span>${esc((groomEn[0] || "") + (brideEn[0] || ""))}</span></button><p>${introTap || esc("Tap the seal")}</p></div>`;
     } else { /* heritage */
-      intro.innerHTML = `<div class="intro-frame">
-        ${blessing ? `<p class="intro-kn kn" lang="kn">${esc(blessing)}</p>` : ""}
+      intro.innerHTML = `<div class="curtain-stage" aria-hidden="true"><div class="curtain-panel curtain-left"></div><div class="curtain-panel curtain-right"></div></div>
+        <div class="intro-frame">
+        ${blessingText ? `<p class="intro-blessing${blessingClass}" lang="${blessingLang()}" data-i18n="blessing">${blessingText}</p>` : ""}
         <span class="monogram" aria-hidden="true">${esc(monogram)}</span>
         <p class="intro-kicker">${introTop}</p>
         <p class="intro-names">${introNames}</p>
         ${introDate}
-        <button type="button" class="intro-btn">${introTap || esc("Open invitation")}</button>
+        <div class="intro-flight"><button type="button" class="intro-btn"><span class="intro-btn-label" data-i18n="intro.tap">${introTap || esc("Open invitation")}</span></button></div>
       </div>`;
     }
     return intro.querySelector(".intro-btn, .intro-open, button");
@@ -169,10 +174,10 @@
   invite.innerHTML = `
     <section class="hero">
       ${photo ? "" : `<div class="arch" aria-hidden="true"><span class="monogram">${esc(monogram)}</span></div>`}
-      ${blessing ? `<p class="blessing rv" lang="kn"><span class="kn">${esc(blessing)}</span><i class="mandala" aria-hidden="true"></i></p>` : ""}
+      ${blessing() ? `<p class="blessing rv" lang="${blessingLang()}"><span class="${blessingLang() === "kn" ? "kn " : ""}blessing-text" data-i18n="blessing">${esc(blessing())}</span><i class="mandala" aria-hidden="true"></i></p>` : ""}
       <p class="eyebrow rv" data-i18n="invitationLine">${esc(t("invitationLine"))}</p>
       ${photo}
-      <h1 class="names"><span class="n1" data-i18n="groom">${esc(t("groom"))}</span><span class="amp">&amp;</span><span class="n2" data-i18n="bride">${esc(t("bride"))}</span></h1>
+      <h1 class="names"><span class="n1" data-i18n="groom">${esc(t("groom"))}</span><span class="amp" data-i18n="conjunction">${esc(t("conjunction"))}</span><span class="n2" data-i18n="bride">${esc(t("bride"))}</span></h1>
       <p class="tag rv" data-i18n="tagline">${esc(t("tagline"))}</p>
       ${mainISO ? `<p class="date rv" data-i18n-date="${esc(mainISO)}" data-i18n-date-opts="${esc(JSON.stringify(DATE_LONG))}">${esc(fmtDate(mainISO, DATE_LONG))}</p>` : ""}
       ${str(C.heroPlace) ? `<p class="place rv" data-i18n="heroPlace">${esc(t("heroPlace"))}</p>` : ""}
@@ -187,7 +192,7 @@
     <section class="info rv" id="details">
       <div class="btns center">${contactBtns}</div>
     </section>
-    <footer class="rv"><p data-i18n="footer">${esc(t("footer"))}</p><p class="sig" data-names>${esc(t("groom"))} &amp; ${esc(t("bride"))}</p></footer>`;
+    <footer class="rv"><p data-i18n="footer">${esc(t("footer"))}</p><p class="sig" data-names>${esc(coupleNames())}</p></footer>`;
 
   /* ---------- language toggle (fixed, above the intro and the page) ---------- */
   let langBtn = null;
@@ -226,6 +231,13 @@
       el.textContent = t(el.getAttribute("data-i18n"));
       reinitTypography(el);
     });
+    document.querySelectorAll('[data-i18n="blessing"]').forEach((el) => {
+      const lang = blessingLang();
+      el.lang = lang;
+      el.classList.toggle("kn", lang === "kn");
+      const parent = el.closest(".blessing");
+      if (parent) parent.lang = lang;
+    });
     document.querySelectorAll("[data-i18n-date]").forEach((el) => {
       let opts = {};
       try { opts = JSON.parse(el.getAttribute("data-i18n-date-opts") || "{}"); } catch (err) { opts = {}; }
@@ -240,13 +252,13 @@
       el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
     });
     document.querySelectorAll("[data-names]").forEach((el) => {
-      el.textContent = `${t("groom")} & ${t("bride")}`;
+      el.textContent = coupleNames();
       reinitTypography(el);
     });
     const mBtn = document.getElementById("musicToggle");
     const audio = document.getElementById("bgm");
     if (mBtn) mBtn.textContent = t(audio && !audio.paused ? "ui.pauseMusic" : "ui.playMusic");
-    document.title = `${t("groom")} & ${t("bride")} — ${t("ui.pageTitle")}`;
+    document.title = `${coupleNames()} — ${t("ui.pageTitle")}`;
   }
 
   applyLanguage();
@@ -312,9 +324,16 @@
   function openInvitation() {
     if (opened) return; opened = true;
     document.body.classList.add("opened");
-    intro.classList.add("leaving");
     reveal();
-    const wait = reduceMotion ? 100 : (theme === "heritage" ? 450 : 1500);
+    if (theme === "heritage" && !reduceMotion) {
+      intro.classList.add("curtain-start");
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (intro.isConnected) intro.classList.add("leaving");
+      }));
+    } else {
+      intro.classList.add("leaving");
+    }
+    const wait = reduceMotion ? 100 : (theme === "heritage" ? 1800 : 1500);
     setTimeout(() => {
       intro.remove();
       updateScrollProgress();
@@ -325,9 +344,8 @@
       }
     }, wait);
   }
-  intro.addEventListener("click", (e) => { if (!e.target.closest("a")) openInvitation(); });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !opened && intro.isConnected) openInvitation();
+  intro.addEventListener("click", (e) => {
+    if (e.target.closest("button")) openInvitation();
   });
 
   /* ---------- music: only ever started by an explicit button press (no autoplay) ---------- */

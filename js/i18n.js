@@ -9,9 +9,10 @@
      month names change with the language.
    - `window.WEDDING_I18N.t("booklet.title")` reads a nested key, with optional
      `{placeholders}`. `lang` is live.
-   - Switching language persists in localStorage ("wedding-lang-v2"), supports
-     `?lang=kn` links, sets <html lang> (browser font shaping + screen readers)
-     and fires a `wedding:langchange` event that app.js / booklet.js listen to.
+   - The configured language is the default on each page load; `?lang=kn` links
+     can open directly in Kannada. Switching language sets <html lang> (browser
+     font shaping + screen readers) and fires a `wedding:langchange` event that
+     app.js / booklet.js listen to.
    ========================================================================== */
 (() => {
   "use strict";
@@ -21,7 +22,6 @@
   const trim = (v) => str(v).trim();
 
   const LANGS = ["en", "kn"];
-  const STORE_KEY = "wedding-lang-v2";
   const KN = C.kn && typeof C.kn === "object" ? C.kn : {};
   const TZ = trim(C.timeZone) || "Asia/Kolkata";
 
@@ -51,7 +51,7 @@
   const BOOKLET_EN = {
     kicker: "Leaf through",
     title: "A little book of us",
-    open: "Open 3D invitation",
+    open: "A Glimpse Into Our Love Story ❤️",
     preparing: "Preparing the booklet…",
     preparingPages: "Preparing pages…",
     prev: "← Prev", next: "Next →", close: "Close",
@@ -75,6 +75,8 @@
   const en = {
     groom: trim(C.groom) || "Groom",
     bride: trim(C.bride) || "Bride",
+    conjunction: "&",
+    blessing: trim(C.blessing),
     intro: {
       top: trim(C.intro && C.intro.top) || "You're invited",
       tap: trim(C.intro && C.intro.tap) || "Open invitation",
@@ -105,13 +107,10 @@
   const dict = { en, kn };
 
   /* ---------- current language ---------- */
-  let stored = "";
-  try { stored = localStorage.getItem(STORE_KEY) || ""; } catch { /* private mode */ }
   const query = new URLSearchParams(location.search).get("lang");
   const configured = trim(C.language).toLowerCase();
   let lang = LANGS.includes(query) ? query
-    : LANGS.includes(stored) ? stored
-      : LANGS.includes(configured) ? configured : "en";
+    : LANGS.includes(configured) ? configured : "en";
 
   /* ---------- translation ---------- */
   function t(path, vars) {
@@ -147,7 +146,6 @@
   function set(next) {
     if (!LANGS.includes(next) || next === lang) return;
     lang = next;
-    try { localStorage.setItem(STORE_KEY, lang); } catch { /* private mode */ }
     applyDocumentLang();
     window.dispatchEvent(new CustomEvent("wedding:langchange", { detail: { lang } }));
   }

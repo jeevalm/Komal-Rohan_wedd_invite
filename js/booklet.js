@@ -47,6 +47,8 @@
   /* resolved at draw time, so a language switch redraws names too */
   const groomNow = () => t("groom").trim() || "Groom";
   const brideNow = () => t("bride").trim() || "Bride";
+  const conjunctionNow = () => t("conjunction").trim() || "&";
+  const coupleNamesNow = () => `${groomNow()} ${conjunctionNow()} ${brideNow()}`;
   /* the monogram is always Latin initials, whatever language is displayed */
   const groomEn = str(C.groom).trim() || "Groom";
   const brideEn = str(C.bride).trim() || "Bride";
@@ -64,7 +66,7 @@
   const introTopNow = () => t("intro.top").trim() || "You're invited";
   const taglineNow = () => t("tagline").trim();
   const monogram = ((groomEn[0] || "").toUpperCase() + "·" + (brideEn[0] || "").toUpperCase()).replace(/[^A-Z·]/g, "");
-  const blessing = str(C.blessing).trim();          /* Kannada blessing (optional) */
+  const blessing = () => t("blessing").trim();
   /* one inside page per configured photo — a custom config can add or remove
      them; missing files are simply skipped, never a blank page */
   const bookletPhotos = (Array.isArray(C.bookletPhotos) ? C.bookletPhotos : [])
@@ -76,7 +78,7 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- section markup, inserted before #schedule (fallbacks below) ---------- */
-  const openLabel = () => t("booklet.open") || "Open 3D invitation";
+  const openLabel = () => t("booklet.open") || "A Glimpse Into Our Love Story ❤️";
   const photoPath = str(C.couplePhoto).trim();
   const section = document.createElement("section");
   section.className = "booklet-sec";
@@ -102,7 +104,7 @@
     <div class="bk-status" id="booklet-status" role="status" hidden></div>
     <figure class="bk-fallback" id="booklet-fallback" hidden>
       ${photoPath ? `<img src="${esc(photoPath)}" width="1600" height="1068" loading="lazy" decoding="async" alt="${esc(groomEn)} and ${esc(brideEn)} together — printed page from the booklet">` : ""}
-      <figcaption>${esc(groomNow())} &amp; ${esc(brideNow())}${heroDateNow() ? " — " + esc(heroDateNow()) : ""}</figcaption>
+      <figcaption>${esc(coupleNamesNow())}${heroDateNow() ? " — " + esc(heroDateNow()) : ""}</figcaption>
     </figure>`;
   const invite = document.getElementById("invite");
   const scheduleSec = document.getElementById("schedule");
@@ -176,7 +178,10 @@
 
   async function ensureFonts() {
     try {
-      if (blessing) await document.fonts.load(`700 48px "${F_KN}"`, blessing).catch(() => {});
+      const blessingText = blessing();
+      if (blessingText) await document.fonts.load(
+        knNow() ? `700 48px "${F_KN}"` : `700 48px "${F_DISP}"`, blessingText
+      ).catch(() => {});
       const reqs = [
         `500 60px "${F_DISP}"`, `600 60px "${F_DISP}"`, `700 60px "${F_DISP}"`,
         `400 26px "${F_BODY}"`, `500 26px "${F_BODY}"`, `700 26px "${F_BODY}"`
@@ -262,11 +267,11 @@
     ctx.fillRect(cx + 18, y, half - 10, 1.4);
     flower(ctx, cx, y + 1, 13);
   };
-  const blessingLine = (ctx, cx, y, size) => {
+  const blessingLine = (ctx, cx, y, size, text) => {
     ctx.save();
-    ctx.font = `700 ${size}px ${KN_STACK}`; ctx.fillStyle = T.maroon;
+    ctx.font = disp(700, size); ctx.fillStyle = T.maroon;
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.fillText(blessing, cx, y);
+    ctx.fillText(text, cx, y);
     ctx.restore();
   };
   const folio = (ctx, cx, n) => {
@@ -284,9 +289,10 @@
     const { cv, ctx } = page();
     const groom = groomNow(), bride = brideNow();
     const introTop = introTopNow(), tagline = taglineNow(), heroDate = heroDateNow();
+    const blessingText = blessing();
     paintBase(ctx); paintFrame(ctx);
     const cx = PAGE_W / 2;
-    if (blessing) blessingLine(ctx, cx, 128, 50);
+    if (blessingText) blessingLine(ctx, cx, 128, 50, blessingText);
     ctx.strokeStyle = T.goldSoft; ctx.lineWidth = 1.5; circle(ctx, cx, 236, 72);
     ctx.lineWidth = 0.75; circle(ctx, cx, 236, 64);
     ctx.fillStyle = T.maroon; ctx.font = `700 46px "${F_DISP}"`;
@@ -296,7 +302,7 @@
     ctx.font = body(500, 26); ctx.fillStyle = T.green;
     spaced(ctx, introTop, cx, 372, 8);
     ctx.fillStyle = T.maroon; ctx.font = disp(700, 92); ctx.fillText(groom, cx, 500);
-    ctx.fillStyle = T.green; ctx.font = disp(500, 64); ctx.fillText("&", cx, 578);
+    ctx.fillStyle = T.green; ctx.font = disp(500, 64); ctx.fillText(conjunctionNow(), cx, 578);
     ctx.fillStyle = T.maroon; ctx.font = disp(700, 92); ctx.fillText(bride, cx, 664);
     if (tagline) {
       ctx.font = body(700, 28); ctx.fillStyle = T.ink;
@@ -310,7 +316,7 @@
     return {
       src: cv,
       alt: `Front cover — ${groom} and ${bride}${heroDate ? ", " + heroDate : ""}`,
-      text: [blessing, introTop, `${groom} & ${bride}`, tagline, heroDate]
+      text: [blessingText, introTop, coupleNamesNow(), tagline, heroDate]
         .filter(Boolean).join("\n\n")
     };
   }
@@ -427,7 +433,7 @@
     overlay.tabIndex = -1;
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-label", `${t("booklet.dialogAria") || "3D invitation booklet"} — ${groomNow()} & ${brideNow()}`);
+    overlay.setAttribute("aria-label", `${t("booklet.dialogAria") || "3D invitation booklet"} — ${coupleNamesNow()}`);
     overlay.hidden = true;
     document.body.appendChild(overlay);           /* a body child: immune to any ancestor transform */
     return overlay;
@@ -555,8 +561,8 @@
     const kickerText = t("booklet.kicker") || "Leaf through";
     if (kicker && kicker.textContent.trim() !== kickerText.trim()) kicker.textContent = kickerText;
     const cap = fallbackFig.querySelector("figcaption");
-    if (cap) cap.textContent = `${groomNow()} & ${brideNow()}${heroDateNow() ? " — " + heroDateNow() : ""}`;
-    if (overlay) overlay.setAttribute("aria-label", `${t("booklet.dialogAria") || "3D invitation booklet"} — ${groomNow()} & ${brideNow()}`);
+    if (cap) cap.textContent = `${coupleNamesNow()}${heroDateNow() ? " — " + heroDateNow() : ""}`;
+    if (overlay) overlay.setAttribute("aria-label", `${t("booklet.dialogAria") || "3D invitation booklet"} — ${coupleNamesNow()}`);
   }
 
   /* the section header picked up its folds before the language changed */
@@ -658,7 +664,7 @@
           ambient: { intensity: 1.9, ground: "#cbbfa8" },
           sun: { intensity: 1.35 }
         },
-        label: `${t("booklet.dialogAria") || "3D invitation booklet"} — ${groomNow()} & ${brideNow()}`,
+        label: `${t("booklet.dialogAria") || "3D invitation booklet"} — ${coupleNamesNow()}`,
         motion: { reducedMotion: "auto" },
         onReady: () => {
           hideStatus();

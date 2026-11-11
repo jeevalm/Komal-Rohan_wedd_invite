@@ -82,7 +82,7 @@ body[data-theme=boho]{--bg:#eef1e6;--ink:#2f3a2a;--accent:#5f7a51;--accent2:#c98
 .contact:hover .contact-number,.contact:focus-visible .contact-number{background:var(--on-accent);color:var(--accent)}
 
 /* ===== INTRO (shared) ===== */
-#intro{position:fixed;inset:0;z-index:100;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center}
+#intro{position:fixed;inset:0;z-index:100;cursor:default;display:flex;align-items:center;justify-content:center;text-align:center}
 #intro button{cursor:pointer;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;padding:14px 34px}
 #intro small{letter-spacing:.4em;text-transform:uppercase;font-size:.7rem}
 #intro p{font-weight:400}
@@ -92,7 +92,36 @@ body[data-theme=boho]{--bg:#eef1e6;--ink:#2f3a2a;--accent:#5f7a51;--accent2:#c98
 
 /* --- Heritage: quiet medallion overlay, quick dismiss --- */
 [data-theme=heritage] #intro{background:radial-gradient(circle at 50% -10%,#fdf1de,var(--bg));flex-direction:column;transition:opacity .45s ease}
-[data-theme=heritage] #intro .intro-frame{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 24px}
+[data-theme=heritage] #intro::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:min(68vw,760px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.48),rgba(228,190,129,.12) 37%,transparent 70%);pointer-events:none;
+  transform:translate3d(-50%,-50%,0) scale(.9);animation:introAmbient 9s ease-in-out infinite alternate}
+[data-theme=heritage] #intro .intro-frame{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 24px}
+[data-theme=heritage] #intro .monogram{animation:introSeal .9s cubic-bezier(.16,1,.3,1) both}
+[data-theme=heritage] #intro .intro-blessing{animation:introRise .72s .06s cubic-bezier(.16,1,.3,1) both}
+[data-theme=heritage] #intro .intro-kicker{animation:introRise .72s .16s cubic-bezier(.16,1,.3,1) both}
+[data-theme=heritage] #intro .intro-names{animation:introRise .86s .28s cubic-bezier(.16,1,.3,1) both}
+[data-theme=heritage] #intro .intro-date{animation:introRise .7s .46s cubic-bezier(.16,1,.3,1) both}
+[data-theme=heritage] #intro .intro-flight{margin-top:36px;perspective:900px;transform-origin:center;animation:introFlight 1.92s cubic-bezier(.2,.7,.18,1) both;will-change:transform,opacity,filter}
+[data-theme=heritage] #intro .intro-btn{animation:introUnfold .72s 1.12s cubic-bezier(.18,.8,.22,1) both,introButtonGlow 3.8s 1.95s ease-in-out infinite}
+[data-theme=heritage] #intro .intro-btn::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(112deg,transparent 15%,rgba(255,235,204,.28) 48%,transparent 78%);transform:translateX(-120%);animation:introSheen .9s 1.7s ease-out both}
+[data-theme=heritage] #intro .intro-btn-label{position:relative;z-index:1;display:inline-block;animation:introLabel .48s 1.48s ease-out both}
+[data-theme=heritage] #intro.curtain-start{background:transparent;transition:none}
+[data-theme=heritage] #intro.curtain-start.leaving{opacity:1;pointer-events:none}
+[data-theme=heritage] #intro.curtain-start .intro-frame{transition:opacity .38s ease,transform .65s cubic-bezier(.2,.75,.25,1)}
+[data-theme=heritage] #intro.curtain-start.leaving .intro-frame{opacity:0;transform:translateY(-10px) scale(.97)}
+[data-theme=heritage] #intro .curtain-stage{position:absolute;inset:0;z-index:1;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none}
+[data-theme=heritage] #intro.curtain-start .curtain-stage{visibility:visible;opacity:1}
+[data-theme=heritage] #intro .curtain-panel{position:absolute;inset:-2% auto -2% 0;width:51%;overflow:hidden;
+  background:repeating-linear-gradient(90deg,rgba(32,4,9,.36) 0 5%,rgba(255,218,177,.11) 8%,rgba(92,14,24,.05) 14%,rgba(27,3,8,.35) 20%),
+    linear-gradient(180deg,#76202b 0%,#5b151e 52%,#421018 100%);
+  box-shadow:inset -20px 0 38px rgba(25,3,7,.28),inset 0 0 0 1px rgba(228,190,129,.18);
+  transition:transform 1.62s cubic-bezier(.76,0,.18,1);will-change:transform}
+[data-theme=heritage] #intro .curtain-panel::after{content:"";position:absolute;top:0;bottom:0;right:0;width:2px;
+  background:linear-gradient(180deg,transparent 4%,rgba(231,198,143,.8) 22%,rgba(231,198,143,.3) 78%,transparent 96%);opacity:.65}
+[data-theme=heritage] #intro .curtain-right{left:auto;right:0;transform:scaleX(-1)}
+[data-theme=heritage] #intro.curtain-start.leaving .curtain-left{transform:translateX(-105%)}
+[data-theme=heritage] #intro.curtain-start.leaving .curtain-right{transform:translateX(105%) scaleX(-1)}
 [data-theme=heritage] #intro .monogram{width:78px;height:78px;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:5px;
   border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--paper);
   color:var(--accent);font-family:var(--f-display);font-weight:700;font-size:1.35rem;letter-spacing:.12em;padding-left:.12em}
@@ -101,7 +130,7 @@ body[data-theme=boho]{--bg:#eef1e6;--ink:#2f3a2a;--accent:#5f7a51;--accent2:#c98
 #intro .intro-names em{font-style:italic;font-weight:400}
 [data-theme=heritage] #intro .intro-names em{font-style:normal;font-weight:500;color:var(--gold);font-size:.6em;padding:0 .12em}
 [data-theme=heritage] #intro .intro-date{margin-top:12px;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
-[data-theme=heritage] #intro .intro-btn{margin-top:36px;background:var(--accent);color:var(--on-accent);border:0;border-radius:var(--rad);
+[data-theme=heritage] #intro .intro-btn{position:relative;overflow:hidden;margin-top:0;background:var(--accent);color:var(--on-accent);border:0;border-radius:var(--rad);
   padding:14px 36px;font-weight:600;box-shadow:0 18px 34px -18px rgba(15,61,58,.65);transition:transform .25s ease,box-shadow .25s ease}
 [data-theme=heritage] #intro .intro-btn:hover{transform:translateY(-2px)}
 [data-theme=heritage] #intro.leaving{opacity:0;pointer-events:none}
@@ -339,6 +368,26 @@ body.opened .names .n2{animation-delay:.25s}
 @keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @keyframes flip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none;opacity:1}}
 @keyframes marq{to{transform:translateX(-50%)}}
+@keyframes introAmbient{from{opacity:.36;transform:translate3d(-50%,-50%,0) scale(.9)}to{opacity:.78;transform:translate3d(-50%,-50%,0) scale(1.08)}}
+@keyframes introSeal{from{opacity:0;transform:scale(.72) rotate(-14deg);box-shadow:0 0 0 12px rgba(108,21,30,0)}to{opacity:1;transform:scale(1) rotate(0);box-shadow:0 0 0 0 rgba(108,21,30,0)}}
+@keyframes introRise{from{opacity:0;transform:translateY(18px);filter:blur(5px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes introFlight{
+  0%{opacity:0;transform:translate3d(-46vw,-55vh,0) rotate(-24deg) scale(.16);filter:blur(12px)}
+  16%{opacity:.42;transform:translate3d(-37vw,-42vh,0) rotate(-17deg) scale(.3);filter:blur(7px)}
+  44%{opacity:.94;transform:translate3d(-16vw,-22vh,0) rotate(-8deg) scale(.64);filter:blur(2px)}
+  68%{opacity:1;transform:translate3d(12px,-10px,0) rotate(5deg) scale(1.06);filter:blur(0)}
+  84%{transform:translate3d(-4px,3px,0) rotate(-1.5deg) scale(.985)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+@keyframes introUnfold{
+  0%{opacity:0;clip-path:inset(0 49% round 50%)}
+  36%{opacity:1;clip-path:inset(0 32% round 18px)}
+  72%{clip-path:inset(0 0 round 3px)}
+  100%{opacity:1;clip-path:inset(0 round 0)}
+}
+@keyframes introLabel{from{opacity:0;transform:translateY(6px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes introSheen{to{transform:translateX(120%)}}
+@keyframes introButtonGlow{0%,100%{box-shadow:0 18px 34px -18px rgba(15,61,58,.65)}50%{box-shadow:0 20px 34px -15px rgba(15,61,58,.6),0 0 0 6px rgba(108,21,30,.055)}}
 
 /* ===== COMPACT SINGLE-SCREEN HERO (heritage theme) =====
    Desktop ≥1024px: two-column hero (photo | names/labels) so photo, names,
@@ -390,6 +439,16 @@ body.opened .names .n2{animation-delay:.25s}
   html{scroll-behavior:auto}
   .rv{opacity:1;transform:none;transition:none}
   [data-theme=editorial] .intro-names span{animation:none}
+  [data-theme=heritage] #intro::before,
+  [data-theme=heritage] #intro .monogram,
+  [data-theme=heritage] #intro .intro-blessing,
+  [data-theme=heritage] #intro .intro-kicker,
+  [data-theme=heritage] #intro .intro-names,
+  [data-theme=heritage] #intro .intro-date,
+  [data-theme=heritage] #intro .intro-flight,
+  [data-theme=heritage] #intro .intro-btn,
+  [data-theme=heritage] #intro .intro-btn::before,
+  [data-theme=heritage] #intro .intro-btn-label{animation:none!important;opacity:1;filter:none;transform:none;clip-path:none}
   .scroll::after{animation:none}
 }
 @media(prefers-reduced-motion:reduce){
@@ -411,13 +470,15 @@ body.opened .names .n2{animation-delay:.25s}
 .mandala{display:inline-block;flex:none}
 
 /* intro: blessing above the monogram */
-[data-theme=heritage] #intro .intro-kn{font-size:clamp(1.7rem,6.4vw,2.4rem);line-height:1.5;color:var(--accent);margin:0 0 20px}
-[data-theme=heritage] #intro .intro-kn::after{content:"";display:block;width:22px;height:22px;margin:6px auto 0;background:var(--accent);
+[data-theme=heritage] #intro .intro-blessing{font-size:clamp(1.7rem,6.4vw,2.4rem);line-height:1.5;color:var(--accent);font-weight:700;margin:0 0 20px}
+[data-theme=heritage] #intro .intro-blessing:not(.kn){font-family:var(--f-display);letter-spacing:.04em}
+[data-theme=heritage] #intro .intro-blessing::after{content:"";display:block;width:22px;height:22px;margin:6px auto 0;background:var(--accent);
   -webkit-mask:var(--mandala) center/contain no-repeat;mask:var(--mandala) center/contain no-repeat}
 
 /* hero: blessing line above the invitation text */
 .blessing{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;color:var(--accent)}
-.blessing .kn{font-size:clamp(1.55rem,5.6vw,2.2rem);line-height:1.5}
+.blessing .blessing-text{font-size:clamp(1.55rem,5.6vw,2.2rem);line-height:1.5;font-weight:700}
+.blessing .blessing-text:not(.kn){font-family:var(--f-display);letter-spacing:.04em}
 .blessing .mandala{width:22px;height:22px}
 .blessing::before{content:"";width:22px;height:22px;background:var(--accent);
   -webkit-mask:var(--mandala) center/contain no-repeat;mask:var(--mandala) center/contain no-repeat}
@@ -487,6 +548,7 @@ html[lang=kn] .place,
 html[lang=kn] .eyebrow,
 html[lang=kn] #intro .intro-kicker,
 html[lang=kn] #intro .intro-date,
+html[lang=kn] [data-theme=heritage] #intro .intro-names em,
 html[lang=kn] .cd small,
 html[lang=kn] .scroll-hint,
 html[lang=kn] .contact-label,
@@ -497,6 +559,7 @@ html[lang=kn] .names{line-height:1.2}
 html[lang=kn] .names>span{overflow:visible;padding-block:.18em}
 html[lang=kn] .hero h1{font-size:clamp(2rem,8vw,4.8rem)!important}
 html[lang=kn] #intro .intro-names{font-size:clamp(1.9rem,7.4vw,3.6rem);line-height:1.3}
+html[lang=kn] [data-theme=heritage] #intro .intro-names em{font-size:.78em}
 html[lang=kn] .tag{font-size:.9rem;line-height:1.7}
 html[lang=kn] .eyebrow{font-size:.82rem;line-height:1.8}
 html[lang=kn] .date{font-size:.88rem;flex-wrap:wrap;justify-content:center;row-gap:4px}
