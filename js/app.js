@@ -137,18 +137,11 @@
 
   /* ---------- invitation body ---------- */
   const invite = $("#invite");
-  /* Responsive hero photo: smaller pre-generated WebP variants are only used for the
-     known root photo (couplePhoto.webp, 1600×1068) — never for a custom-config image,
-     whose file name/location we can't predict. The original WebP stays as the fallback
-     src and as the 1600w source. Appearance is unchanged: same photo, uncropped. */
+  /* Use the configured photo directly; the shipped responsive variants do not match
+     this portrait image's dimensions or provide smaller files. */
   const photoPath = str(C.couplePhoto).trim();
-  const HERO_SRCSET = photoPath === "couplePhoto.webp"
-    ? `couplePhoto-640.webp 640w, couplePhoto-960.webp 960w, ${esc(photoPath)} 1600w`
-    : "";
-  /* mirrors .photo's CSS width: stacked ≤1023px vs the two-column desktop hero */
-  const HERO_SIZES = "(max-width:1023px) min(86vw, 430px), min(44vw, 620px)";
   const photo = photoPath
-    ? `<div class="photo rv"><img src="${esc(photoPath)}"${HERO_SRCSET ? ` srcset="${HERO_SRCSET}" sizes="${HERO_SIZES}"` : ""} width="1600" height="1068" loading="eager" decoding="async" fetchpriority="high" alt="${esc(groomEn)} and ${esc(brideEn)} smiling together — wedding invitation photo"></div>` : "";
+    ? `<div class="photo rv"><img src="${esc(photoPath)}" width="1080" height="1350" loading="eager" decoding="async" fetchpriority="high" alt="${esc(groomEn)} and ${esc(brideEn)} smiling together — wedding invitation photo"></div>` : "";
   const sectionHead = (kickerKey, titleKey) => `<header class="sec-head rv"><p class="kicker" data-i18n="${kickerKey}">${esc(t(kickerKey))}</p><h2 data-i18n="${titleKey}">${esc(t(titleKey))}</h2><span class="orn" aria-hidden="true"><i></i><b></b><i></i></span></header>`;
 
   const cards = events.map(({ e, index }) => `

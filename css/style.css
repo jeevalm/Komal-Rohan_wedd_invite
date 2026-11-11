@@ -209,8 +209,8 @@ body[data-theme=boho]{--bg:#eef1e6;--ink:#2f3a2a;--accent:#5f7a51;--accent2:#c98
 .scroll-hint:hover,.scroll-hint:focus-visible{color:var(--accent);opacity:1}
 @media (max-width:1023px){.scroll-hint{display:inline-flex}}
 @media (max-height:640px){.scroll-hint{display:none}}
-/* couple photo: intrinsic 1600×1068 → 400:267 landscape, shown uncropped */
-.photo{width:min(78vw,560px);aspect-ratio:400/267;margin-bottom:18px;overflow:hidden}
+/* couple photo: intrinsic 1080×1350 portrait, shown uncropped */
+.photo{width:min(78vw,560px);aspect-ratio:4/5;margin-bottom:18px;overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
 [data-theme=heritage] .photo{border:1px solid var(--green);padding:8px;background:var(--paper);box-shadow:var(--shadow)}
 [data-theme=heritage] .photo img{object-fit:contain}
@@ -392,7 +392,7 @@ body.opened .names .n2{animation-delay:.25s}
 /* ===== COMPACT SINGLE-SCREEN HERO (heritage theme) =====
    Desktop ≥1024px: two-column hero (photo | names/labels) so photo, names,
    date, venue and the schedule link all fit inside 100svh (1440×900 down to
-   1366×768). Below that: compact stacked — landscape photo on top, the names
+   1366×768). Below that: compact stacked — portrait photo on top, the names
    on one line, tightened labels. Nothing is ever clipped: the hero keeps
    min-height:100svh and may simply grow on very small/zoomed viewports. */
 @media (max-width:1023px){
@@ -425,7 +425,7 @@ body.opened .names .n2{animation-delay:.25s}
     column-gap:clamp(28px,4.5vw,64px);row-gap:clamp(6px,1.4svh,14px);
     padding:clamp(40px,7svh,78px) clamp(26px,4vw,56px)}
   [data-theme=heritage] .hero .arch{grid-area:photo;margin-bottom:0;justify-self:center}
-  [data-theme=heritage] .hero .photo{grid-area:photo;width:100%;max-width:620px;margin-bottom:0}
+  [data-theme=heritage] .hero .photo{grid-area:photo;width:100%;max-width:430px;margin-bottom:0}
   [data-theme=heritage] .hero .eyebrow{grid-area:eyebrow;margin-bottom:0}
   [data-theme=heritage] .hero .names{grid-area:names;align-items:flex-start}
   [data-theme=heritage] .hero h1{font-size:clamp(2.9rem,6.6vw,5.1rem)}
@@ -519,7 +519,10 @@ body.opened .names .n2{animation-delay:.25s}
   transition:background .25s ease,color .25s ease,border-color .25s ease,transform .25s ease,opacity .2s ease}
 .lang-toggle:hover,.lang-toggle:focus-visible{background:var(--accent);color:var(--on-accent);border-color:var(--accent);transform:translateY(-1px)}
 body.bk-open .lang-toggle{opacity:0;visibility:hidden;pointer-events:none}
-@media (max-width:420px){.lang-toggle{top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px))}}
+@media (max-width:420px){
+  .lang-toggle{top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px))}
+  .hero > .blessing{margin-top:40px}
+}
 
 /* ============================================================
    KANNADA TYPOGRAPHY — Noto Sans Kannada for running text,
