@@ -16,7 +16,7 @@ window.WEDDING = {
   bride: "Komal",
   groomFamily: "Ummannanavar",                // groom's surname / family name
   brideFamily: "Mahendrakar",                 // bride's surname / family name
-  blessing: "Shubha Vivah",                    // shown on the intro, hero and booklet; set both language values to "" to hide
+  blessing: "SHUBHA VIVAHA",                    // shown on the intro, hero and booklet; set both language values to "" to hide
   tagline: "are getting married",            // line under the names
   // The bride's family is listed first (bride's side).
   invitationLine: "With joy and blessings, the Mahendrakar and Ummannanavar families invite you to the wedding of",
